@@ -1,0 +1,16 @@
+{% extends 'registration/base.html' %}
+
+{% block content %}
+<h1>Имя Фамилия</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="NameSurnameForm" style="float: left;margin-right: 5%;border: medium none; background-image: none; background: transparent; background-color: transparent; vertical-align: middle;"><div class="back_arrow item"></div></button>
+    <div style="text-align: center">
+        {{ form.name_surname }}
+        
+        <div style="color: #dc3545; font-size: small">{{ error }}</div>
+    </div>
+    
+</form>
+{% endblock %}

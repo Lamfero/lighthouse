@@ -1,0 +1,132 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="{% static '/styles/style.css' %}"> -->
+    <script src="{% static '/js/jquery/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static '/js/jquery/jquery.maskedinput.min.js' %}"></script>
+    <title>Отзывы</title>
+</head>
+<body>
+    <style>
+        body{
+            background-color: black;
+        }
+        .body_title{
+            color: white;
+        }
+        hr{
+            color: #a7a6ac;
+        }
+        .menu{
+            background-color: #141319;
+            border-radius: 10px;
+            margin-left: 2%;
+            margin-right: 2%;
+            margin-top: 2vh;
+            margin-bottom: 2vh;
+            padding-left: 2%;
+            padding-top: 2%;
+            padding-bottom: 2%;
+        }
+        .item-info{
+            color: #a7a6ac;
+            font-size: medium;
+            text-decoration: none;
+        }
+        
+    .item{
+        display: inline-block;
+        color: white;
+        
+    }
+    .edit_icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 2%;
+        float: right;
+    }
+    .delete_icon {
+        width: 40px;
+        height: 40px;
+        margin-left: 2%;
+        float: right;
+    }
+    .plus_icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 30px;
+        float: right;
+    }
+    .doc {
+        width: 40px;
+        height: 40px;
+    }
+    .diploms {
+        margin-top: 70px;
+    }
+    .diplom{
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: 30px;
+        margin-right: 30px;
+    }
+    .arrow {
+        float: right;
+        width: 30px;
+        height: 30px;
+      }
+      .arrow:after {
+        float: right;
+        top: 8px;
+        content: '';
+        display: block;
+        width: 15px;
+        height: 15px;
+        border-left: 1px solid gray;
+        border-bottom: 1px solid gray;
+        transform: rotate(45deg);
+      }
+      .feedbacker{
+        text-decoration: none;
+        color: white;
+      }
+      .feedbacker:hover{
+        text-decoration: none;
+        color: white;
+        cursor: default;
+      }
+      .user_image{
+        width: 50px;
+        height: 50px;
+        border-radius: 25px;
+        margin-right: 10px;
+      }
+    </style>
+
+    <form class="menu" method="post">
+        {% csrf_token %}
+        <button type="submit" name="back_from_diploms" style="float: left;margin-right: 5%;border: medium none; background-image: none; background: transparent; background-color: transparent; vertical-align: middle;"><div class="arrow item"></div></button><br>
+        <div class="feedbacks">
+        {% if feedbacks != None %}
+            {% for id, feedback in feedbacks.items %}
+               
+                <div class="feedback">
+                    <hr>
+                    <img class="user_image" src="{{ feedback.0 }}"><a class="feedbacker" href="{% url 'view_profie_from_outside' feedback.1 %}">{{feedback.2}}</a><a {% if feedback.1 != 'positive' %}style="color: red;"{% else %}style="color: #3a724b;"{% endif %} class="item-info"> {{ feedback.3 }}</a>
+                </div>
+            {% endfor %}
+        {% else %}
+        <a class="item-info">У вас нет отзывов</a>
+        {% endif %}
+        </div>
+        
+    </form>
+
+</body>
+</html>

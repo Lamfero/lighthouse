@@ -1,0 +1,41 @@
+{% extends 'registration/base.html' %}
+
+{% block content %}
+
+
+<h1>Портфолио</h1>
+<form method="post">
+    {% csrf_token %}
+
+    <button type="submit" name="PortfolioForm" style="float: left;margin-right: 5%;border: medium none; background-image: none; background: transparent; background-color: transparent; vertical-align: middle;"><div class="back_arrow item"></div></button>
+    <div style="text-align: center">
+        <h4>Инстагармм</h4>
+        {{ form.instagram }}
+
+        <h4>Бихайнс</h4>
+        {{ form.behance }}
+
+        <h4>Дрибл</h4>
+        {{ form.dribbble }}
+
+        <h4>ВК</h4>
+        {{ form.vk }}
+        
+        <h6>Данный раздел необязателен для заполнения</h6>
+        <script>
+            var instagram = "{{ userinfo.instagram }}"
+            var behance = "{{ userinfo.behance }}"
+            var dribbble = "{{ userinfo.dribbble }}"
+            var vk = "{{ userinfo.vk }}"
+            document.getElementById('id_instagram').value = instagram;
+            document.getElementById('id_behance').value = behance;
+            document.getElementById('id_dribbble').value = dribbble;
+            document.getElementById('id_vk').value = vk;
+        </script>
+
+        <div style="color: #dc3545; font-size: small">{{ error }}</div>
+    </div>
+    
+</form>
+
+{% endblock %}

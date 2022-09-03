@@ -1,0 +1,51 @@
+{
+    "simpleRouteData": {
+        "dateBack": null,
+        "from": {
+            "id": 9748,
+            "code": "SVX",
+            "name": "Екатеринбург",
+            "city": "Екатеринбург",
+            "country": "Россия"
+        },
+        "to": {
+            "id": 4242,
+            "code": "LED",
+            "name": "Пулково",
+            "city": "Санкт-Петербург",
+            "country": "Россия"
+        },
+        "date": "04.08.2022"
+    },
+    "difficultRouteData": {
+        "routes": []
+    },
+    "scheduleRouteData": {
+        "onAllDays": false,
+        "from": null,
+        "to": null,
+        "date": null
+    },
+    "additionalParams": {
+        "passengers": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0,
+            "infantsWithSeat": 0,
+            "youths": 0,
+            "seniors": 0,
+            "invalids": 0,
+            "escorts": 0,
+            "largeFamily": 0,
+            "invalidChildren": 0,
+            "adultsDfo": 0,
+            "childrenDfo": 0,
+            "youthsDfo": 0,
+            "seniorsDfo": 0
+        },
+        "serviceClass": 0,
+        "airCompanies": [],
+        "onlyDirect": false,
+        "contextProfile": 0
+    }
+}

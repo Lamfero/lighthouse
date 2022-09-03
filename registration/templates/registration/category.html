@@ -1,0 +1,19 @@
+{% extends 'registration/base.html' %}
+
+{% block content %}
+
+<h1>Категория</h1><br>
+
+<h4>Выберите категорию вашей деятельности</h4>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="CategoryForm" style="float: left;margin-right: 5%;border: medium none; background-image: none; background: transparent; background-color: transparent; vertical-align: middle;"><div class="back_arrow item"></div></button>
+    <div style="text-align: center">
+        {{ form.category }}
+        
+        <div style="color: #dc3545; font-size: small">{{ error }}</div>
+    </div>
+</form>
+
+{% endblock %}

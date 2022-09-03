@@ -1,0 +1,71 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static '/styles/style.css' %}">
+    <script src="{% static '/js/jquery/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static '/js/jquery/jquery.maskedinput.min.js' %}"></script>
+    <title>Услуга</title>
+</head>
+<body>
+    <style>
+        body{
+            background-color: black;
+        }
+        .body_title{
+            color: white;
+        }
+        hr{
+            color: #a7a6ac;
+        }
+        .menu{
+            background-color: #141319;
+            border-radius: 10px;
+            margin-left: 2%;
+            margin-right: 2%;
+            margin-top: 2vh;
+            margin-bottom: 2vh;
+            padding-left: 2%;
+            padding-top: 2%;
+            padding-bottom: 2%;
+        }
+        .item-info{
+            color: #a7a6ac;
+            font-size: medium;
+            text-decoration: none;
+        }
+        
+    .item{
+        display: inline-block;
+        color: white;
+        
+    }
+    .edit_icon {
+        width: 40px;
+        height: 40px;
+    }
+    .plus_icon {
+        width: 40px;
+        height: 40px;
+        float: right;
+    }
+    </style>
+
+    <form class="menu" method="post" enctype='multipart/form-data'>
+        {% csrf_token %}
+        <input type="text" class="name" name="title_of_service"><br>
+        <textarea name="purpose_of_service" id="" cols="30" rows="10"></textarea><br>
+        {{ form.service_image }}
+        <button type="submit" name="add_new_service">Создать</button>
+        <div style="color: #dc3545; font-size: small">
+            {{ error }}
+        </div>
+    </form>
+
+</body>
+</html>

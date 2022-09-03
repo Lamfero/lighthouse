@@ -1,0 +1,18 @@
+{% extends 'registration/base.html' %}
+
+{% block content %}
+<h1>Фото профиля</h1>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <button type="submit" name="UserPhotoForm" style="float: left;margin-right: 5%;border: medium none; background-image: none; background: transparent; background-color: transparent; vertical-align: middle;"><div class="back_arrow item"></div></button>
+    <div style="text-align: center">
+        
+        {{ form.userphoto }}
+        <!-- <input class="input" type="file" accept=".png" name="userphoto" enctype= "multipart/form-data"> -->
+
+        <div style="color: #dc3545; font-size: small">{{ error }}</div>
+    </div>
+    
+</form>
+{% endblock %}
