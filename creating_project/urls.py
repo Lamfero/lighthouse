@@ -19,4 +19,6 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name="creating_project"),
+    path('get_data', views.get_data),
+    path('final_check_list_view', views.final_check_list_view),
 ] 

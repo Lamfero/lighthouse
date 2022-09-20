@@ -51,7 +51,7 @@ def generate_secret_key(id):
 
 
 def check_exist_user(id):
-    return True
+    return False
     
 
 def add_user(id, username):

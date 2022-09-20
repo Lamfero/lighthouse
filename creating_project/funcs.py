@@ -131,7 +131,7 @@ def delete_creating_project_file(telegram_id, file_id):
         if creating_project_db.file_5 != '' and creating_project_db.file_5!= None:
             path = f"{Path(__name__).resolve().parent}{creating_project_db.file_5.file.url}".replace("\\", "/")
             os.remove(path)
-            id = creating_project_db.file_2.pk
+            id = creating_project_db.file_5.pk
             ProjectFiles.objects.filter(pk=id).delete()
 
 

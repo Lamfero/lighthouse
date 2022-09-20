@@ -1,6 +1,4 @@
-from distutils.command.upload import upload
 from django.db import models
-from django.forms import CharField, ImageField
 from tariffs.models import TariffSettings
 
 # Create your models here.
@@ -63,6 +61,7 @@ class Project(models.Model):
     file_4 = models.ForeignKey(ProjectFiles, on_delete=models.CASCADE, null=True, related_name="project_file_4")
     file_5 = models.ForeignKey(ProjectFiles, on_delete=models.CASCADE, null=True, related_name="project_file_5")
     enable_price_upper = models.CharField(max_length=3)
+    moderation = models.CharField(max_length=10, default="False")
 
 
 class Service(models.Model):

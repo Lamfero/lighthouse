@@ -1,5 +1,3 @@
-
-
 from django import forms
 from django.forms import DateField, ModelForm, Textarea, TextInput, DateInput
 from main.models import Users

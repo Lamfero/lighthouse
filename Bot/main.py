@@ -30,7 +30,7 @@ bot = Bot(token=token)
 dp = Dispatcher(bot)
 # p2p = QiwiP2P(auth_key=PAYMENT_QIWI_TOKEN)
 #1230154081
-con = sql.connect('project.db', timeout=10)
+con = con = sql.connect('project.db', timeout=10)
 cur = con.cursor()
 
 
@@ -45,12 +45,12 @@ async def a(message: types.Message):
         await bot.send_message(message.from_user.id, "Статус Главный Администратор выдан выдан.", reply_markup=get_main_menu(id))
 
 
-@dp.message_handler(commands=['test'])
-async def test(message: types.Message):
+@dp.message_handler(commands=['project'])
+async def project(message: types.Message):
     if message.chat.type == 'private':
         id = message.from_user.id
         menu = InlineKeyboardMarkup()
-        site = InlineKeyboardButton(text="Сайтик", web_app=WebAppInfo(url="https://xn80aue1.vh104.hosterby.com"))
+        site = InlineKeyboardButton(text="Сайтик", web_app=WebAppInfo(url="https://xn--80aue1f.online/creating_project?telegram_id=111111&secret_key=111111"))
         menu.add(site)
         await bot.send_message(id, "Тест", reply_markup=menu)
 
@@ -70,7 +70,11 @@ async def start(message: types.Message):
                 if 'registration' in user_select:
                     await bot.delete_my_commands(BotCommandScopeChat(chat_id=id))
                     change_select(id, 'registration (start)')
-                    await bot.send_message(message.from_user.id, f'Привет! В нашем боте Вы сможете создать, разместить в общем каталоге и прямо здесь же начать продавать билеты через интегрированную систему. Подробнее о работе бота Вы можете прочитать в разделах "FAQ" и "О нас".', reply_markup=start_menu)
+                    menu = InlineKeyboardMarkup()
+                    site = InlineKeyboardButton(text="Сайтик", web_app=WebAppInfo(url="https://xn--80aue1f.online/registration?telegram_id=111111&secret_key=111111"))
+                    menu.add(site)
+                    await bot.send_message(id, "Тест", reply_markup=menu)
+                    await bot.send_message(message.from_user.id, f'Привет! В нашем боте Вы сможете создать, разместить в общем каталоге и прямо здесь же начать продавать билеты через интегрированную систему. Подробнее о работе бота Вы можете прочитать в разделах "FAQ" и "О нас".', reply_markup=menu)
                 else:
                     await bot.set_my_commands([
                         types.BotCommand("profile", "Профиль"),
@@ -364,8 +368,10 @@ async def text(message: types.Message):
         username = message.from_user.username
         msg = str(message.text)
         if check_exist_user(id):
-            update_last_online(id) 
             user_select = get_user_select(id)
+            print(f'Уникальный индетификатор: {id} Время: {datetime.datetime.today().time().hour}:{datetime.datetime.today().time().minute} Шаг: {user_select}')
+            update_last_online(id) 
+            
             print(f'Уникальный индетификатор: {id} Время: {datetime.datetime.today().time().hour}:{datetime.datetime.today().time().minute} Шаг: {user_select}')
             if 'registration' in user_select:
                 await bot.send_message(id, "Пройдите регистрацию", reply_markup=registration_site_menu)

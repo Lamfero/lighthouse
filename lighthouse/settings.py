@@ -28,7 +28,11 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 
+# КАСТОМНЫЕ НАСТРОЙКИ
 
+# SECURE_SSL_REDIRECT = True
+
+# КОНЕЦ КАСТОМНЫХ НАСТРОЕК
 
 
 # Application definition
@@ -39,12 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'registration',    
+    "registration",    
     "main",
     "user_profile",
     "tariffs",
     "creating_project",
     "projects",
+    "api",
 ]
 
 MIDDLEWARE = [
@@ -91,6 +96,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 
 

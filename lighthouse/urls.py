@@ -27,6 +27,7 @@ urlpatterns = [
     path("profile/", include("user_profile.urls")),
     path("projects/", include("projects.urls")),
     path("creating_project/", include("creating_project.urls")),
+    path("api/", include("api.urls")),
     *static(settings.STATIC_URL, document_root=settings.STATIC_ROOT),
     
 

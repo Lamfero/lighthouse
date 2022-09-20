@@ -6,337 +6,364 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static '/styles/creating_project/style.css' %}">
     <link rel="stylesheet" href="{% static '/styles/style.css' %}">
+    <script src="{% static '/js/creating_project/script.js' %}"></script>
+    <script src="{% static '/js/jquery/jquery-3.6.0.min.js' %}"></script>
     <title>Создание проекта</title>
 </head>
 <body>
     <script>
         function textarea_resize(event, line_height, min_line_count)
-{
-  var min_line_height = min_line_count * line_height;
-  var obj = event.target;
-  var div = document.getElementById(obj.id + '_div');
-  div.innerHTML = obj.value;
-  var obj_height = div.offsetHeight;
-  if (event.keyCode == 13)
-    obj_height += line_height;
-  else if (obj_height < min_line_height)
-    obj_height = min_line_height;
-  obj.style.height = obj_height + 'px';
-}
- function sleep (ms, args, obj) {
+        {
+        var min_line_height = min_line_count * line_height;
+        var obj = event.target;
+        var div = document.getElementById(obj.id + '_div');
+        div.innerHTML = obj.value;
+        var obj_height = div.offsetHeight;
+        if (event.keyCode == 13)
+            obj_height += line_height;
+        else if (obj_height < min_line_height)
+            obj_height = min_line_height;
+        obj.style.height = obj_height + 'px';
+        }
+    function sleep (ms, args, obj) {
+        var caller = sleep.caller;
+        if (caller.sleepTimer) { 
 
+        delete caller.sleepTimer;
+        return true;
+        }
 
-    var caller = sleep.caller;
-    if (caller.sleepTimer) { 
+        caller.sleepTimer = window.setTimeout (function () {
+        caller.apply (obj || null, args || []);
+        },ms);
 
-      delete caller.sleepTimer;
-      return true;
+        return false;
+    } 
+    function add_file(file){
+        let form = document.getElementById('form_file');
+        form.submit();
     }
 
-    caller.sleepTimer = window.setTimeout (function () {
-      caller.apply (obj || null, args || []);
-    },ms);
-
-    return false;
-  } 
-  function add_file(file){
-    let form = document.getElementById('form');
-    form.submit();
-  }
-        function check_ON_OFF_enable_price_upper(checkbox)
-        {   
-            let form = document.getElementById('form');
-            if (checkbox.checked)
-            {
-                document.getElementById('enable_price_upper').value = 'on';
-            }else{
-                document.getElementById('enable_price_upper').value = 'off';
-            }
-            if (!sleep (400, arguments, this)) return;
-            form.submit();
+    function check_ON_OFF_enable_price_upper(checkbox)
+    {   
+        if (checkbox.checked)
+        {
+            a = "on";
+        }else{
+            a = "off";
         }
+        // if (!sleep (400, arguments, this)) return;
+        csrf = document.getElementsByName('csrfmiddlewaretoken');
+        SendData('', csrf[0].value, "enable_price_upper", a);
+    }
+        
     </script>
-
+    {% csrf_token %}
     <h1 class="body_title">Создание проекта</h1>
-    <style>
-        .menu_button{
-            width: 100%;
-            background: none;
-            border: none;
-        }
-        .item{
-            float:left;
-        }
-        .icon{
-            width: 40px;
-            height: 40px;
-        }
-        .error{
-            text-decoration: none;
-            color: red;
-        }
-    </style>
-    <form method="post" id="form" enctype="multipart/form-data">
-        {% csrf_token %}
+
         <div class="menu">
         
         <!-- Название -->
-        {% if edit != 'project_name' %}
-        
-            <div class="project_name line" style="align-items: center;">
-                <button type="submit"class="menu_button" name="enter_project_name"><h5 class="item">Название проекта</h5><a class="item-info">{% if projectinfo.name != None %} {{projectinfo.name}}{% else %}{% endif %}</a></button>
-            </div>
-            {% if final_check_list_errors.name %}
-                <a style="color: red;" class="error">{{ final_check_list_errors.name }}</a>
-            {% endif %}
-            <hr>
-            
-
-        {% else %}
-        
-        <div class="project_name line" style="align-items: center;">
-            <h5 class="item">Название проекта</h5>
-            <input type="text" name="project_name" maxlength="30" value="{% if projectinfo.name != None %}{{projectinfo.name}}{% else %}{% endif %}" autofocus><input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_name">
+        <div id="project_name_button" class="project_name_button" style="align-items: center;">
+            <button name="enter_project_name" class="menu_button" onclick="OpenProjectName();">
+                <h5 class="item">Название проекта</h5>
+                <a id="project_name_a_value" class="item-info">{% if projectinfo.name != None %} {{projectinfo.name}}{% else %}{% endif %}</a>
+            </button>
         </div>
-        {% if errors.name %}
-        <a class="error">{{ errors.name }}!</a>
-        {% endif %}
-        <hr>
-        {% endif %}
+            
+            <div class="project_name_input hide" style="align-items: center;" id="project_name_input">
+                <h5 class="item">Название проекта</h5>
+                <input id="project_name_input_value" type="text" name="project_name" maxlength="30" value="{% if projectinfo.name != None %}{{projectinfo.name}}{% else %}{% endif %}" autofocus><input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_name" onclick="CheckAndSendName();">
+            </div>
 
+                <a id="project_name_error_value" class="error"></a>
+
+            <hr>
+
+        
+
+        
         <!-- Тип -->
-        {% if edit != 'project_type' %}
         
-            <div class="project_type line" style="align-items: center;">
-                <button type="submit"class="menu_button" name="enter_project_type"><h5 class="item">Тип проекта</h5><a class="item-info">{% if projectinfo.type != None %} {{projectinfo.type}}{% else %}{% endif %}</a></button>
-            </div>
-            {% if final_check_list_errors.type %}
-                <a style="color: red;" class="error">{{ final_check_list_errors.type }}</a>
-            {% endif %}
-            <hr>
-
-        {% else %}
-        
-        <div class="project_name line" style="align-items: center;">
+        <div id="project_type_button" class="project_type_button" style="align-items: center;">
+            <button name="enter_project_type" class="menu_button" onclick="OpenProjectType();">
+                <h5 class="item">Тип проекта</h5>
+                <a id="project_type_a_value" class="item-info">{% if projectinfo.type != None %} {{projectinfo.type}}{% else %}{% endif %}</a>
+            </button>
+        </div>
+            
+        <div class="project_type_input hide" style="align-items: center;" id="project_type_input">
             <h5 class="item">Тип проекта</h5>
-            <button type="submit" name="project_type_online">Онлайн</button>
-            <button type="submit" name="project_type_offline">Оффлайн</button>
-        </div>
-        {% if errors.name %}
-        <a class="error">{{ errors.name }}!</a>
-        {% endif %}
-        <hr>
-        {% endif %}
-
-        <!-- Категория -->
-        {% if edit != 'project_category' %}
-        
-            <div class="project_category line" style="align-items: center;">
-                <button type="submit"class="menu_button" name="enter_project_category"><h5 class="item">Категория проекта</h5><a class="item-info">{% if projectinfo.category != None %} {{projectinfo.category|truncatechars:30}}{% else %}{% endif %}</a></button>
-            </div>
-            {% if final_check_list_errors.category %}
-                <a style="color: red;" class="error">{{ final_check_list_errors.category }}</a>
-            {% endif %}
-            <hr>
-
-        {% else %}
-        
-        <div class="project_category line" style="align-items: center;">
-            <h5 class="item">Категория проекта</h5>
-            <datalist name="" id="CATEGORY_LIST">
-                
-                <option value="Категория 1">Категория 1</option>
-                <option value="Категория 2">Категория 2</option>
-            </datalist>
-            <input list="CATEGORY_LIST" type="text" name="project_category" maxlength="30" value="{% if projectinfo.category != None %}{{projectinfo.category}}{% else %}{% endif %}" autofocus autocomplete="off"><input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_category">
+            <button name="project_type_offline" onclick="CheckAndSendType('offline');">Оффлайн</button>
+            <button name="project_type_online" onclick="CheckAndSendType('online');">Онлайн</button>
             
         </div>
-        {% if errors.category %}
-        <a class="error">{{ errors.category }}!</a>
-        {% endif %}
+
+        <a id="project_type_error_value" class="error"></a>
+
         <hr>
-        {% endif %}
 
-        <!-- Подкатегория -->
-        {% if edit != 'project_subcategory' %}
-        
-            <div class="project_subcategory line" style="align-items: center;">
-                <button type="submit"class="menu_button" name="enter_project_subcategory"><h5 class="item">Подкатегория проекта</h5><a class="item-info">{% if projectinfo.subcategory != None %} {{projectinfo.subcategory|truncatechars:30}}{% else %}{% endif %}</a></button>
-            </div>
-            {% if final_check_list_errors.subcategory %}
-                <a style="color: red;" class="error">{{ final_check_list_errors.subcategory }}</a>
-            {% endif %}
-            <hr>
 
-        {% else %}
-        
-        <div class="project_subcategory line" style="align-items: center;">
-            <h5 class="item">Подкатегория проекта</h5> 
-            <datalist name="" id="SUBCATEGORY_LIST">
-                {% for item in subcategories %}
-                    <option value="{{ item }}">{{ item }}</option>
-                {% endfor %}
-            </datalist>
-            <input list="SUBCATEGORY_LIST" type="text" name="project_subcategory" maxlength="30" value="{% if projectinfo.subcategory != None %}{{projectinfo.subcategory}}{% else %}{% endif %}" autofocus  autocomplete="off"><input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_subcategory">
+        <form method="post" id="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- Категория -->
+            {% if edit != 'project_category' %}
             
-        </div>
-        {% if errors.category %}
-        <a class="error">{{ errors.subcategory }}!</a>
-        {% endif %}
-        <hr>
-        {% endif %}
-
-        {% if subsubcategories != None %}
-            <!-- Подподкатегории -->
-            {% if edit != 'project_subsubcategory' %}
-                <div class="enter_project_subsubcategory line" style="align-items: center;">
-                    <button type="submit"class="menu_button" name="enter_project_subsubcategory"><h5 class="item">Подподкатегории</h5><a class="item-info">{% if projectinfo.subsubcategory != None %} {{projectinfo.subsubcategory |truncatechars:30}}{% else %}{% endif %}</a></button>
+                <div class="project_category line" style="align-items: center;">
+                    <button type="submit"class="menu_button" name="enter_project_category"><h5 class="item">Категория проекта</h5><a class="item-info">{% if projectinfo.category != None %} {{projectinfo.category|truncatechars:30}}{% else %}{% endif %}</a></button>
                 </div>
-                {% if final_check_list_errors.subsubcategory %}
-                    <a style="color: red;" class="error">{{ final_check_list_errors.subsubcategory }}</a>
+                {% if final_check_list_errors.category %}
+                    <a style="color: red;" class="error">{{ final_check_list_errors.category }}</a>
                 {% endif %}
                 <hr>
 
             {% else %}
-            <div class="project_subsubcategories line" style="align-items: center;">
-                <h5 class="item">Подподкатегории</h5>
-                <datalist name="" id="SUBSUBCATEGORIES_LIST">
-                    {% for item in subsubcategories %}
+            
+            <div class="project_category line" style="align-items: center;">
+                <h5 class="item">Категория проекта</h5>
+                <datalist name="" id="CATEGORY_LIST">
+                    
+                    <option value="Категория 1">Категория 1</option>
+                    <option value="Категория 2">Категория 2</option>
+                </datalist>
+                <input list="CATEGORY_LIST" type="text" name="project_category" maxlength="30" value="{% if projectinfo.category != None %}{{projectinfo.category}}{% else %}{% endif %}" autofocus autocomplete="off"><input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_category">
+                
+            </div>
+            {% if errors.category %}
+            <a class="error">{{ errors.category }}!</a>
+            {% endif %}
+            <hr>
+            {% endif %}
+
+            <!-- Подкатегория -->
+            {% if edit != 'project_subcategory' %}
+            
+                <div class="project_subcategory line" style="align-items: center;">
+                    <button type="submit"class="menu_button" name="enter_project_subcategory"><h5 class="item">Подкатегория проекта</h5><a class="item-info">{% if projectinfo.subcategory != None %} {{projectinfo.subcategory|truncatechars:30}}{% else %}{% endif %}</a></button>
+                </div>
+                {% if final_check_list_errors.subcategory %}
+                    <a style="color: red;" class="error">{{ final_check_list_errors.subcategory }}</a>
+                {% endif %}
+                <hr>
+
+            {% else %}
+            
+            <div class="project_subcategory line" style="align-items: center;">
+                <h5 class="item">Подкатегория проекта</h5> 
+                <datalist name="" id="SUBCATEGORY_LIST">
+                    {% for item in subcategories %}
                         <option value="{{ item }}">{{ item }}</option>
                     {% endfor %}
                 </datalist>
-                <input list="SUBSUBCATEGORIES_LIST" type="text" name="project_subsubcategory" maxlength="30" value="{% if projectinfo.subsubcategory != None %}{{projectinfo.subsubcategory}}{% else %}{% endif %}" autofocus  autocomplete="off"><input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_subsubcategory">
+                <input list="SUBCATEGORY_LIST" type="text" name="project_subcategory" maxlength="30" value="{% if projectinfo.subcategory != None %}{{projectinfo.subcategory}}{% else %}{% endif %}" autofocus  autocomplete="off"><input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_subcategory">
+                
             </div>
-            {% if errors.subsubcategories %}
-            <a class="error">{{ errors.subsubcategory }}!</a>
+            {% if errors.category %}
+            <a class="error">{{ errors.subcategory }}!</a>
             {% endif %}
             <hr>
-            {% endif %}  
-        {% endif %}
+            {% endif %}
+
+            {% if subsubcategories != None %}
+                <!-- Подподкатегории -->
+                {% if edit != 'project_subsubcategory' %}
+                    <div class="enter_project_subsubcategory line" style="align-items: center;">
+                        <button type="submit"class="menu_button" name="enter_project_subsubcategory"><h5 class="item">Подподкатегории</h5><a class="item-info">{% if projectinfo.subsubcategory != None %} {{projectinfo.subsubcategory |truncatechars:30}}{% else %}{% endif %}</a></button>
+                    </div>
+                    {% if final_check_list_errors.subsubcategory %}
+                        <a style="color: red;" class="error">{{ final_check_list_errors.subsubcategory }}</a>
+                    {% endif %}
+                    <hr>
+
+                {% else %}
+                <div class="project_subsubcategories line" style="align-items: center;">
+                    <h5 class="item">Подподкатегории</h5>
+                    <datalist name="" id="SUBSUBCATEGORIES_LIST">
+                        {% for item in subsubcategories %}
+                            <option value="{{ item }}">{{ item }}</option>
+                        {% endfor %}
+                    </datalist>
+                    <input list="SUBSUBCATEGORIES_LIST" type="text" name="project_subsubcategory" maxlength="30" value="{% if projectinfo.subsubcategory != None %}{{projectinfo.subsubcategory}}{% else %}{% endif %}" autofocus  autocomplete="off"><input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_subsubcategory">
+                </div>
+                {% if errors.subsubcategories %}
+                <a class="error">{{ errors.subsubcategory }}!</a>
+                {% endif %}
+                <hr>
+                {% endif %}  
+            {% endif %}
+        </form>
 
         <!-- Описание -->
-        {% if edit != 'project_description' %}
         
-            <div class="project_description line" style="align-items: center;">
-                <button type="submit"class="menu_button" name="enter_project_description"><h5 class="item">Описание проекта</h5><a class="item-info">{% if projectinfo.description != None %} {{projectinfo.description|truncatechars:30}}{% else %}{% endif %}</a></button>
-            </div>
+        <div id="project_description_button" class="project_description_button" style="align-items: center;">
+            <button name="enter_project_description" class="menu_button" onclick="OpenProjectDescription();">
+                <h5 class="item">Описание проекта</h5>
+                <a id="project_description_a_value" class="item-info">{% if projectinfo.description != None %} {{projectinfo.description|truncatechars:25}}{% else %}{% endif %}</a>
+            </button>
             <div class="info" data-title="В этом поле нужно описать цель проекта, сроки, что нужно от исполнителя и тд"><img src="{% static 'images/info.png' %}" style="width: 30px;height: 30px;" alt=""></div>
-            {% if final_check_list_errors.description %}
-                <a style="color: red;" class="error">{{ final_check_list_errors.description }}</a>
-            {% endif %}
+        </div>
+            
+            <div class="project_description_input hide" style="align-items: center;" id="project_description_input">
+                <h5 class="item">Описание проекта</h5>
+                <input id="project_description_input_value" type="text" name="project_description" maxlength="300" value="{% if projectinfo.description != None %}{{projectinfo.description}}{% else %}{% endif %}" autofocus><input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_description" onclick="CheckAndSendDescription();">
+                <div class="info" data-title="В этом поле нужно описать цель проекта, сроки, что нужно от исполнителя и тд"><img src="{% static 'images/info.png' %}" style="width: 30px;height: 30px;" alt=""></div>
+            </div>
+
+                <a id="project_description_error_value" class="error"></a>
+
             <hr>
 
-        {% else %}
-        
-        <div class="project_description line" style="align-items: center;">
-            <h5 class="item">Описание проекта</h5><div class="info" data-title="В этом поле нужно описать цель проекта, сроки, что нужно от исполнителя и тд"><img src="{% static 'images/info.png' %}" style="width: 30px;height: 30px;" alt=""></div>
-            <textarea id="text_area" rows="2"  onkeyup="textarea_resize(event, 25, 2);" name="project_description" maxlength="300" autofocus onfocus="textarea_resize(event, 25, 2);">{% if projectinfo.description != None %}{{projectinfo.description}}{% else %}{% endif %}</textarea>
-            <div id="text_area_div"></div>
-            <input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_description">
-        </div>
-        
-        {% if errors.description %}
-        <a class="error">{{ errors.description }}!</a>
-        {% endif %}
-        <hr>
-        {% endif %}
+
+
+
 
         <!-- Интересы исполнителя -->
-        {% if edit != 'project_employee_interests' %}
+
+        <div id="project_employee_interests_button" class="project_employee_interests_button" style="align-items: center;">
+            <button name="enter_project_employee_interests" class="menu_button" onclick="OpenProjectEmployeeInterests();">
+                <h5 class="item">Интересы исполнителя</h5>
+                <a id="project_employee_interests_a_value" class="item-info"></a>
+            </button>
         
-            <div class="project_employee_interests line" style="align-items: center;">
-                <button type="submit"class="menu_button" name="enter_project_employee_interests"><h5 class="item">Интересы исполнителя</h5><a class="item-info">{% if user_interests != None %} {{user_interests.0 |truncatechars:10}} {{user_interests.1 |truncatechars:10}} {{user_interests.2 |truncatechars:10}}{% else %}{% endif %}</a></button>
+        </div>
+            
+            <div class="project_employee_interests_input hide" style="align-items: center;" id="project_employee_interests_input">
+                <h5 class="item">Интересы исполнителя</h5>
+                <datalist name="" id="EMPLOYEE_INTERESTS_LIST">
+                    {% for item in employee_interests %}
+                        <option value="{{ item }}">{{ item }}</option>
+                    {% endfor %}
+                </datalist>
+                <input list="EMPLOYEE_INTERESTS_LIST" type="text" name="project_employee_interest_1" maxlength="30" value="{% if user_interests != None %}{{user_interests.0}}{% else %}{% endif %}" placeholder="Нету" autofocus  autocomplete="off">
+                <input list="EMPLOYEE_INTERESTS_LIST" type="text" name="project_employee_interest_2" maxlength="30" value="{% if user_interests != None %}{{user_interests.1}}{% else %}{% endif %}" placeholder="Нету" autofocus  autocomplete="off">
+                <input list="EMPLOYEE_INTERESTS_LIST" type="text" name="project_employee_interest_3" maxlength="30" value="{% if user_interests != None %}{{user_interests.2}}{% else %}{% endif %}" placeholder="Нету" autofocus  autocomplete="off">
+                <input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_employee_interests" onclick="CheckAndSendEmployeeInterests();">
             </div>
-            {% if final_check_list_errors.employee_interests %}
-                <a style="color: red;" class="error">{{ final_check_list_errors.employee_interests }}</a>
-            {% endif %}
+
+                <a id="project_employee_interests_error_value" class="error"></a>
+                
             <hr>
 
-        {% else %}
-        
-        <div class="project_employee_interests line" style="align-items: center;">
-            <h5 class="item">Интересы исполнителя</h5>
-            <datalist name="" id="EMPLOYEE_INTERESTS_LIST">
-                {% for item in employee_interests %}
-                    <option value="{{ item }}">{{ item }}</option>
-                {% endfor %}
-            </datalist>
-            <input list="EMPLOYEE_INTERESTS_LIST" type="text" name="project_employee_interest_1" maxlength="30" value="{% if user_interests != None %}{{user_interests.0}}{% else %}{% endif %}" placeholder="Нету" autofocus  autocomplete="off">
-            <input list="EMPLOYEE_INTERESTS_LIST" type="text" name="project_employee_interest_2" maxlength="30" value="{% if user_interests != None %}{{user_interests.1}}{% else %}{% endif %}" placeholder="Нету" autofocus  autocomplete="off">
-            <input list="EMPLOYEE_INTERESTS_LIST" type="text" name="project_employee_interest_3" maxlength="30" value="{% if user_interests != None %}{{user_interests.2}}{% else %}{% endif %}" placeholder="Нету" autofocus  autocomplete="off">
-            <input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_employee_interests">
-        </div>
-        {% if errors.employee_interests %}
-        <a class="error">{{ errors.employee_interests }}!</a>
-        {% endif %}
-        <hr>
-        {% endif %}  
+ 
         
         <!-- Цена не более -->
-        {% if edit != 'project_price_no_more' %}
-        
-            <div class="project_description line" style="align-items: center;">
-                <button type="submit"class="menu_button" name="enter_project_price_no_more"><h5 class="item">Цена не более</h5><a class="item-info">{% if projectinfo.price_no_more != None %} {{projectinfo.price_no_more}}{% else %}{% endif %}{% if projectinfo.currency != None %}{{projectinfo.currency}}{% endif %}</a></button>
+        <div id="project_price_no_more_button" class="project_price_no_more_button" style="align-items: center;">
+            <button name="enter_project_price_no_more" class="menu_button" onclick="OpenProjectPriceNoMore();">
+                <h5 class="item">Цена не более</h5>
+                <a id="project_price_no_more_a_value" class="item-info">{% if projectinfo.price_no_more != None %}{{projectinfo.price_no_more}} {{projectinfo.currency}}{% else %}{% endif %}</a>
+                
+            </button>
+            <div class="info" data-title="Это поле определяет на какую максимальную стоимость работы может расчитывать исполнитель"><img src="{% static 'images/info.png' %}" style="width: 30px;height: 30px;" alt=""></div>
+        </div>
+            
+            <div class="project_price_no_more_input hide" style="align-items: center;" id="project_price_no_more_input">
+                <h5 class="item">Цена не болееа</h5>
                 <div class="info" data-title="Это поле определяет на какую максимальную стоимость работы может расчитывать исполнитель"><img src="{% static 'images/info.png' %}" style="width: 30px;height: 30px;" alt=""></div>
+                <input type="text" name="project_price_no_more" maxlength="30" value="{% if projectinfo.price_no_more != None %}{{projectinfo.price_no_more}}{% else %}{% endif %}" autofocus>
+                <select id="CURRENCY" name="currency">
+                    {% if projectinfo.currency == "$" %}
+                        <option value="$">$</option>
+                        <option value="₽">₽</option>
+                    {% else %}
+                        <option value="₽">₽</option>
+                        <option value="$">$</option>
+                    {% endif %}
+                </select>
+                <input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_price_no_more" onclick="CheckAndSendPriceNoMore();">
             </div>
-            {% if final_check_list_errors.price_no_more %}
-                <a style="color: red;" class="error">{{ final_check_list_errors.price_no_more }}</a>
-            {% endif %}
+
+                <a id="project_price_no_more_error_value" class="error"></a>
+                
             <hr>
 
-        {% else %}
+
+
+
+
         
-        <div class="project_description line" style="align-items: center;">
             
-            <h5 class="item">Цена не более</h5>
-            <div class="info" data-title="Это поле определяет на какую максимальную стоимость работы может расчитывать исполнитель"><img src="{% static 'images/info.png' %}" style="width: 30px;height: 30px;" alt=""></div>
-            <input type="text" name="project_price_no_more" maxlength="30" value="{% if projectinfo.price_no_more != None %}{{projectinfo.price_no_more}}{% else %}{% endif %}" autofocus>
-            <select id="CURRENCY" name="currency">
-                {% if projectinfo.currency == "$" %}
-                    <option value="$">$</option>
-                    <option value="₽">₽</option>
-                {% else %}
-                    <option value="₽">₽</option>
-                    <option value="$">$</option>
-                {% endif %}
-            </select>
-            <input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_price_no_more">
-        </div>
-        {% if errors.price_no_more %}
-        <a class="error">{{ errors.price_no_more }}!</a>
-        {% endif %}
-        <hr>
-        {% endif %}
-        
+    
         
         <!-- Добавить файлы -->
         {% if edit != 'project_add_files' %}
-        
-            <div class="project_add_files line" style="align-items: center;">
-                <button type="submit"class="menu_button" name="enter_project_add_files"><h5 class="item">Добавить файлы</h5><a class="item-info">{% if projectinfo.enter_project_add_files != None %} {{projectinfo.enter_project_add_files|truncatechars:30}}{% else %}{% endif %}</a></button>
-            </div>
-            <hr>
-
+            <form method="post" id="form_file" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="project_add_files line" style="align-items: center;">
+                    <button type="submit"class="menu_button" name="enter_project_add_files"><h5 class="item">Добавить файлы</h5><a class="item-info">{% if projectinfo.enter_project_add_files != None %} {{projectinfo.enter_project_add_files|truncatechars:30}}{% else %}{% endif %}</a></button>
+                </div>
+                <hr>
+            </form>
         {% else %}
         
         <div class="project_add_files line" style="align-items: center;">
-            <h5 class="item">Добавить файлы</h5><br><br>
-            {{ form.file }}
+            <form method="post" id="form_file" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h5 class="item">Добавить файлы</h5><br><br>
+                {{ form.file }}
             
             <input type="image" src="{% static 'images/check_mark.png' %}" class="icon" name="enter_project_add_files"><br><br>
+            </form>
             {% if files != None %}
                 
                 {% if files.file_1 != "" %}
 
                     {% if files.file_1.extension == "png" or files.file_1.extension == "jpg" or files.file_1.extension == "jpeg" %}
-                        <input type="image" name="delete_file_1" class="file" src="{{files.file_1.file.url}}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_1()" class="dropbtn" type="image" class="file" src="{{files.file_1.file.url}}" alt="">
+                            
+                            <div id="myDropdown_1" class="dropdown-content_1">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_1">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_1()">Закрыть</a>
+                                
+                            </div>
+                        </div>
+                        
                     {% elif files.file_1.extension == "docx" %}
-                        <input type="image" name="delete_file_1" class="file" src="{% static 'images/docx.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_1()" class="dropbtn" type="image" class="file" src="{% static 'images/docx.png' %}" alt="">
+                            
+                            <div id="myDropdown_1" class="dropdown-content_1">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_1">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_1()">Закрыть</a>
+                                
+                            </div>
+                          </div>
+                            
+                        
                     {% elif files.file_1.extension == "pdf" %}
-                        <input type="image" name="delete_file_1" class="file" src="{% static 'images/pdf.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_1()" class="dropbtn" type="image" class="file" src="{% static 'images/pdf.png' %}" alt="">
+                            
+                            <div id="myDropdown_1" class="dropdown-content_1">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_1">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_1()">Закрыть</a>
+                                
+                            </div>
+                          </div>
                     {% elif files.file_1.extension == "xlsx" %}
-                        <input type="image" name="delete_file_1" class="file" src="{% static 'images/xlsx.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_1()" class="dropbtn" type="image" class="file" src="{% static 'images/xlsx.png' %}" alt="">
+                            
+                            <div id="myDropdown_1" class="dropdown-content_1">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_1">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_1()">Закрыть</a>
+                                
+                            </div>
+                          </div>
                     {% endif %}
 
                 {% endif %} 
@@ -344,13 +371,60 @@
                 {% if files.file_2 != "" %}
 
                     {% if files.file_2.extension == "png" or files.file_2.extension == "jpg" or files.file_2.extension == "jpeg" %}
-                        <input type="image" name="delete_file_2" class="file" src="{{files.file_2.file.url}}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_2()" class="dropbtn" type="image" class="file" src="{{files.file_2.file.url}}" alt="">
+                            
+                            <div id="myDropdown_2" class="dropdown-content_2">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_2">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_2()">Закрыть</a>
+                                
+                            </div>
+                        </div>
+                        
                     {% elif files.file_2.extension == "docx" %}
-                        <input type="image" name="delete_file_2" class="file" src="{% static 'images/docx.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_2()" class="dropbtn" type="image" class="file" src="{% static 'images/docx.png' %}" alt="">
+                            
+                            <div id="myDropdown_2" class="dropdown-content_2">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_2">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_2()">Закрыть</a>
+                                
+                            </div>
+                          </div>
+                            
+                        
                     {% elif files.file_2.extension == "pdf" %}
-                        <input type="image" name="delete_file_2" class="file" src="{% static 'images/pdf.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_2()" class="dropbtn" type="image" class="file" src="{% static 'images/pdf.png' %}" alt="">
+                            
+                            <div id="myDropdown_2" class="dropdown-content_2">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_2">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_2()">Закрыть</a>
+                                
+                            </div>
+                          </div>
                     {% elif files.file_2.extension == "xlsx" %}
-                        <input type="image" name="delete_file_2" class="file" src="{% static 'images/xlsx.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_2()" class="dropbtn" type="image" class="file" src="{% static 'images/xlsx.png' %}" alt="">
+                            
+                            <div id="myDropdown_2" class="dropdown-content_2">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_2">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_2()">Закрыть</a>
+                                
+                            </div>
+                          </div>
                     {% endif %}
 
                 {% endif %} 
@@ -358,13 +432,60 @@
                 {% if files.file_3 != "" %}
 
                     {% if files.file_3.extension == "png" or files.file_3.extension == "jpg" or files.file_3.extension == "jpeg" %}
-                        <input type="image" name="delete_file_3" class="file" src="{{files.file_3.file.url}}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_3()" class="dropbtn" type="image" class="file" src="{{files.file_3.file.url}}" alt="">
+                            
+                            <div id="myDropdown_3" class="dropdown-content_3">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_3">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_3()">Закрыть</a>
+                                
+                            </div>
+                        </div>
+                        
                     {% elif files.file_3.extension == "docx" %}
-                        <input type="image" name="delete_file_3" class="file" src="{% static 'images/docx.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_3()" class="dropbtn" type="image" class="file" src="{% static 'images/docx.png' %}" alt="">
+                            
+                            <div id="myDropdown_3" class="dropdown-content_3">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_3">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_3()">Закрыть</a>
+                                
+                            </div>
+                          </div>
+                            
+                        
                     {% elif files.file_3.extension == "pdf" %}
-                        <input type="image" name="delete_file_3" class="file" src="{% static 'images/pdf.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_3()" class="dropbtn" type="image" class="file" src="{% static 'images/pdf.png' %}" alt="">
+                            
+                            <div id="myDropdown_3" class="dropdown-content_3">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_3">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_3()">Закрыть</a>
+                                
+                            </div>
+                          </div>
                     {% elif files.file_3.extension == "xlsx" %}
-                        <input type="image" name="delete_file_3" class="file" src="{% static 'images/xlsx.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_3()" class="dropbtn" type="image" class="file" src="{% static 'images/xlsx.png' %}" alt="">
+                            
+                            <div id="myDropdown_3" class="dropdown-content_3">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_3">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_3()">Закрыть</a>
+                                
+                            </div>
+                          </div>
                     {% endif %}
 
                 {% endif %} 
@@ -372,34 +493,128 @@
                 {% if files.file_4 != "" %}
 
                     {% if files.file_4.extension == "png" or files.file_4.extension == "jpg" or files.file_4.extension == "jpeg" %}
-                        <input type="image" name="delete_file_4" class="file" src="{{files.file_4.file.url}}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_4()" class="dropbtn" type="image" class="file" src="{{files.file_4.file.url}}" alt="">
+                            
+                            <div id="myDropdown_4" class="dropdown-content_4">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_4">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_4()">Закрыть</a>
+                                
+                            </div>
+                        </div>
+                        
                     {% elif files.file_4.extension == "docx" %}
-                        <input type="image" name="delete_file_4" class="file" src="{% static 'images/docx.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_4()" class="dropbtn" type="image" class="file" src="{% static 'images/docx.png' %}" alt="">
+                            
+                            <div id="myDropdown_4" class="dropdown-content_4">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_4">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_4()">Закрыть</a>
+                                
+                            </div>
+                          </div>
+                            
+                        
                     {% elif files.file_4.extension == "pdf" %}
-                        <input type="image" name="delete_file_4" class="file" src="{% static 'images/pdf.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_4()" class="dropbtn" type="image" class="file" src="{% static 'images/pdf.png' %}" alt="">
+                            
+                            <div id="myDropdown_4" class="dropdown-content_4">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_4">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_4()">Закрыть</a>
+                                
+                            </div>
+                          </div>
                     {% elif files.file_4.extension == "xlsx" %}
-                        <input type="image" name="delete_file_4" class="file" src="{% static 'images/xlsx.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_4()" class="dropbtn" type="image" class="file" src="{% static 'images/xlsx.png' %}" alt="">
+                            
+                            <div id="myDropdown_4" class="dropdown-content_4">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_4">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_4()">Закрыть</a>
+                                
+                            </div>
+                          </div>
                     {% endif %}
 
                 {% endif %} 
 
                 {% if files.file_5 != "" %}
 
-                    {% if files.file_5.extension == "png" or files.file_5.extension == "jpg" or file_5.4.extension == "jpeg" %}
-                        <input type="image" name="delete_file_5" class="file" src="{{files.file_5.file.url}}" alt="">
+                    {% if files.file_5.extension == "png" or files.file_5.extension == "jpg" or files.file_5.extension == "jpeg" %}
+                        <div class="dropdown">
+                            <input onclick="openDropdown_5()" class="dropbtn" type="image" class="file" src="{{files.file_5.file.url}}" alt="">
+                            
+                            <div id="myDropdown_5" class="dropdown-content_5">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_5">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_5()">Закрыть</a>
+                                
+                            </div>
+                        </div>
+                        
                     {% elif files.file_5.extension == "docx" %}
-                        <input type="image" name="delete_file_5" class="file" src="{% static 'images/docx.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_5()" class="dropbtn" type="image" class="file" src="{% static 'images/docx.png' %}" alt="">
+                            
+                            <div id="myDropdown_5" class="dropdown-content_5">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_5">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_5()">Закрыть</a>
+                                
+                            </div>
+                          </div>
+                            
+                        
                     {% elif files.file_5.extension == "pdf" %}
-                        <input type="image" name="delete_file_5" class="file" src="{% static 'images/pdf.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_5()" class="dropbtn" type="image" class="file" src="{% static 'images/pdf.png' %}" alt="">
+                            
+                            <div id="myDropdown_5" class="dropdown-content_5">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_5">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_5()">Закрыть</a>
+                                
+                            </div>
+                          </div>
                     {% elif files.file_5.extension == "xlsx" %}
-                        <input type="image" name="delete_file_5" class="file" src="{% static 'images/xlsx.png' %}" alt="">
+                        <div class="dropdown">
+                            <input onclick="openDropdown_5()" class="dropbtn" type="image" class="file" src="{% static 'images/xlsx.png' %}" alt="">
+                            
+                            <div id="myDropdown_5" class="dropdown-content_5">
+                                <form method="post" id="form" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <a href="#"><button name="delete_file_5">Удалить</button></a>
+                                </form>
+                                    <a onclick="closeDropdown_5()">Закрыть</a>
+                                
+                            </div>
+                          </div>
                     {% endif %}
 
                 {% endif %} 
 
                 <br>
 
-                <a href="" class="" style="color: white;">Чтобы удалить файл, кликните по нему </a>
+                <a class="" style="color: white;">Чтобы удалить файл, кликните по нему </a>
             {% else %}
             
             {% endif %} 
@@ -418,140 +633,37 @@
         
 
         <style>
-            #text_area
-            {
-            width: 170px;
-            height: 30px;
-            overflow: hidden;
-            padding: 5px;
-            border: 1px solid #000000;
-            font-family: Arial;
-            font-size: 12px;
-            color: #000000;
-            resize: none;
-            }
-            #text_area_div
-            {
-            width: 170px;
-            font-family: Arial;
-            font-size: 12px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            visibility: hidden;
-            position: absolute;
-            left: -9999px;
-            }
-            .info {
-                display: inline-block; /* Строчно-блочный элемент */
-                position: relative; /* Относительное позиционирование */
-            }
-            .info:hover::after {
-                content: attr(data-title); /* Выводим текст */
-                position: absolute; /* Абсолютное позиционирование */
-                left: 65%; top: 0%; /* Положение подсказки */
-                z-index: 1; /* Отображаем подсказку поверх других элементов */
-                background: rgba(255,255,230,0.9); /* Полупрозрачный цвет фона */
-                font-family: Arial, sans-serif; /* Гарнитура шрифта */
-                font-size: 11px; /* Размер текста подсказки */
-                padding: 5px 10px; /* Поля */
-                border: 1px solid #333; /* Параметры рамки */
-            }
-             .file{
-                width: 100px;
-                height: 100px;
-            }
-
-            .switch {
-              position: relative;
-              display: inline-block;
-              width: 60px;
-              height: 34px;
-            }
             
-            .switch input { 
-              opacity: 0;
-              width: 0;
-              height: 0;
-            }
-            
-            .slider {
-              position: absolute;
-              cursor: pointer;
-              top: 0;
-              left: 0;
-              right: 0;
-              bottom: 0;
-              background-color: #ccc;
-              -webkit-transition: .4s;
-              transition: .4s;
-            }
-            
-            .slider:before {
-              position: absolute;
-              content: "";
-              height: 26px;
-              width: 26px;
-              left: 4px;
-              bottom: 4px;
-              background-color: white;
-              -webkit-transition: .4s;
-              transition: .4s;
-            }
-            
-            input:checked + .slider {
-              background-color: #2196F3;
-            }
-            
-            input:focus + .slider {
-              box-shadow: 0 0 1px #2196F3;
-            }
-            
-            input:checked + .slider:before {
-              -webkit-transform: translateX(26px);
-              -ms-transform: translateX(26px);
-              transform: translateX(26px);
-            }
-            
-            /* Rounded sliders */
-            .slider.round {
-              border-radius: 34px;
-            }
-            
-            .slider.round:before {
-              border-radius: 50%;
-            }
-            .accept_menu{
-                text-align:center;
-            }
-
-            .accept{
-                background: #3277f1;
-                font-size: x-large;
-                padding-left: 32%;
-                padding-right: 32%;
-                padding-top: 1.5%;
-                padding-bottom: 1.5%;
-                border-radius: 16px;
-            }
-            </style>
+    </style>
 
         <div class="menu">
-            <div class="enable_price_upper line" style="align-items: center;">
+        <form method="post" id="form_enable_price_upper" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div id="enable_price_upper_div" class="enable_price_upper line" style="align-items: center;">
                 <h6 class="item">Рассмотреть предложения с ценой выше</h5><br><br>
                     <label class="switch">
                         <input type="checkbox" class name="" id="" onclick="check_ON_OFF_enable_price_upper(this)" {% if projectinfo.enable_price_upper == "on" %}checked{% endif %}>
                         <span class="slider round"></span>
                     </label>
-                <input type="hidden" name="enable_price_upper"  id="enable_price_upper" value="{{ projectinfo.enable_price_upper }}">
+                <input type="hidden" name="enable_price_upper" id="enable_price_upper" value="{{ projectinfo.enable_price_upper }}">
             </div>
-
+        </form>
         </div>
 
         
 
         <div class="accept_menu">
-            <input type="submit" class="accept" name="accept" value="Подтвердить">
+            
+            <a id="project_submit_error_value" class="error"></a>
+            <br>
+            <input type="submit" class="accept" name="accept" value="Подтвердить" onclick="AcceptCreatingProject()">
+            
         </div>
-    </form>
+
+        <form method="post" class="hide" id="ACCEPT">
+            {% csrf_token %}
+            <input id="accept" name="accept" value="Подтвердить">
+        </form>
+    
 </body>
 </html>

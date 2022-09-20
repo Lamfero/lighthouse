@@ -1,16 +1,22 @@
 from django.shortcuts import render, redirect
-
+from django.http import JsonResponse, HttpResponse
+from django.urls import reverse
 from main.models import Users
 from . import funcs
 from . import forms
 from .models import CreatingProject
+import json
+import time
 # Create your views here.
 
 ALLOWED_EXTENSIONS = ["pdf", "docx", "xlsx", "png", "jpg", "jpeg"]
 EMPLOYEE_INTERESTS = ["Интерес 1", "Интерес 2", "Интерес 3", "Интерес 4", ""]
 
 def index(request):
-
+    user_db = Users()
+    user_db.telegram_id = 111111
+    user_db.secret_key = 111111
+    user_db.save()
     for post in request.POST:
         print(post)
     if 'telegram_id' in request.GET and 'secret_key' in request.GET:
@@ -25,6 +31,7 @@ def index(request):
         telegram_id = request.session["telegram_id"]
         secret_key = request.session["secret_key"]
         
+
         
         if 'creating_project' not in request.session:
             request.session["creating_project"] = {}
@@ -54,30 +61,29 @@ def index(request):
             context["edit"] = "project_add_files"
 
             # Название
-            if 'enter_project_name' in request.POST:
-                context["edit"] = "project_name"
-            elif 'project_name' in request.POST and 'enter_project_name.y' in request.POST:
+
+            if 'project_name' in request.POST:
                 if len(request.POST["project_name"]) <= 30 and len(request.POST["project_name"]) >= 5:
                     creating_project_db.name = request.POST["project_name"]
                     creating_project_db.save()
+                    return JsonResponse({"status": "ok"}, safe=False)
                 else:
                     context["edit"] = "project_name"
                     context["errors"]["name"] = "Длина от 5 до 30 символов"
             
             # Тип
-            if 'enter_project_type' in request.POST:
-                context["edit"] = "project_type"
-            elif 'project_type_online' in request.POST:
+
+            if 'project_type_online' in request.POST:
                 creating_project_db.type = 'Онлайн'
                 creating_project_db.save()
+                return JsonResponse({"status": "ok"}, safe=False)
             elif 'project_type_offline' in request.POST:
                 creating_project_db.type = 'Оффлайн'
                 creating_project_db.save()
+                return JsonResponse({"status": "ok"}, safe=False)
             
             # Категория
-            if 'enter_project_category' in request.POST:
-                context["edit"] = "project_category"
-            elif 'project_category' in request.POST and 'enter_project_category.y' in request.POST:
+            if 'project_category' in request.POST and 'enter_project_category.y' in request.POST:
                 if funcs.check_exist_category(category=request.POST["project_category"]):
                     if creating_project_db.category != request.POST["project_category"]:
                         creating_project_db.subcategory = ""
@@ -130,21 +136,20 @@ def index(request):
                         context["errors"]["subsubcategory"] = "Выберите из списка"
 
             # Описание
-            if 'enter_project_description' in request.POST:
-                context["edit"] = "project_description"
-            elif 'project_description' in request.POST and 'enter_project_description.y' in request.POST:
+
+            if 'project_description' in request.POST:
                 if len(request.POST["project_description"]) <= 300 and len(request.POST["project_description"]) >= 5:
                     creating_project_db.description = request.POST["project_description"]
                     creating_project_db.save()
+                    return JsonResponse({"status": "ok"}, safe=False)
                 else:
                     context["edit"] = "project_description"
                     context["errors"]["description"] = "Длина от 5 до 300 символов"
 
             # Интересы исполнителя
-            if 'enter_project_employee_interests' in request.POST:
-                context["edit"] = "project_employee_interests"
-                context["employee_interests"] = EMPLOYEE_INTERESTS
-            elif 'project_employee_interest_1' in request.POST and 'project_employee_interest_2' in request.POST and 'project_employee_interest_3' in request.POST and 'enter_project_employee_interests.y' in request.POST:
+
+                
+            if 'project_employee_interest_1' in request.POST and 'project_employee_interest_2' in request.POST and 'project_employee_interest_3' in request.POST:
                 if request.POST["project_employee_interest_1"] in EMPLOYEE_INTERESTS and request.POST["project_employee_interest_2"] in EMPLOYEE_INTERESTS and request.POST["project_employee_interest_3"] in EMPLOYEE_INTERESTS:
                     coincidences = False
                     if request.POST["project_employee_interest_1"] !=  "" and request.POST["project_employee_interest_2"] != "":
@@ -159,6 +164,7 @@ def index(request):
                     if coincidences == False:
                         creating_project_db.employee_interests = [request.POST["project_employee_interest_1"], request.POST["project_employee_interest_2"], request.POST["project_employee_interest_3"]]
                         creating_project_db.save()
+                        return JsonResponse({"status": "ok"}, safe=False)
                     else:
                         context["edit"] = "project_employee_interests"
                         context["employee_interests"] = EMPLOYEE_INTERESTS
@@ -169,14 +175,13 @@ def index(request):
                     context["errors"]["employee_interests"] = "Ошибка"
 
             # Цена не более
-            if 'enter_project_price_no_more' in request.POST:
-                context["edit"] = "project_price_no_more"
-            elif 'project_price_no_more' in request.POST and 'currency' in request.POST and 'enter_project_price_no_more.y' in request.POST:
+
+            if 'project_price_no_more' in request.POST and 'currency' in request.POST:
                 if funcs.check_valid_price_no_more(price_no_more=request.POST["project_price_no_more"], currency=request.POST["currency"]):
                     creating_project_db.price_no_more = request.POST["project_price_no_more"]
                     creating_project_db.currency = request.POST["currency"]
                     creating_project_db.save()
-                    
+                    return JsonResponse({"status": "ok"}, safe=False)
                 else:
                     context["edit"] = "project_price_no_more"
                     context["errors"]["price_no_more"] = 'Введите все верно. Кроме символа валюты "$" или "₽" не должно быть что-то кроме цифр' 
@@ -191,6 +196,9 @@ def index(request):
                 elif request.POST["enable_price_upper"] == "off":
                     creating_project_db.enable_price_upper = "off"
                 creating_project_db.save()
+                return JsonResponse({"status": "ok"}, safe=False)
+
+                
 
             
             if creating_project_db.subcategory != "":
@@ -215,24 +223,25 @@ def index(request):
                         else:
                             context["errors"]["enter_project_add_files"] = "Не более 5 файлов"
                         return redirect('creating_project')
+                        
                     else:
                         context["errors"]["enter_project_add_files"] = "Недопустимый формат файла. Разрешенные форматы .pdf .docx .xlsx .png .jpg .jpeg"
                 
                 context["edit"] = "project_add_files"
             
-            if 'delete_file_1.y' in request.POST:
+            if 'delete_file_1' in request.POST:
                 funcs.delete_creating_project_file(telegram_id=telegram_id, file_id=1)
                 context["edit"] = "project_add_files"
-            elif 'delete_file_2.y' in request.POST:
+            elif 'delete_file_2' in request.POST:
                 funcs.delete_creating_project_file(telegram_id=telegram_id, file_id=2)
                 context["edit"] = "project_add_files"
-            elif 'delete_file_3.y' in request.POST:
+            elif 'delete_file_3' in request.POST:
                 funcs.delete_creating_project_file(telegram_id=telegram_id, file_id=3)
                 context["edit"] = "project_add_files"
-            elif 'delete_file_4.y' in request.POST:
+            elif 'delete_file_4' in request.POST:
                 funcs.delete_creating_project_file(telegram_id=telegram_id, file_id=4)
                 context["edit"] = "project_add_files"
-            elif 'delete_file_5.y' in request.POST:
+            elif 'delete_file_5' in request.POST:
                 funcs.delete_creating_project_file(telegram_id=telegram_id, file_id=5)
                 context["edit"] = "project_add_files"
 
@@ -250,10 +259,12 @@ def index(request):
             context["form"] = forms.FileInputForm()
             context["files"] = creating_project_db
             context["projectinfo"] = creating_project_db
+            context["employee_interests"] = EMPLOYEE_INTERESTS
             if creating_project_db.employee_interests != "":
                 context["user_interests"] = eval(str(creating_project_db.employee_interests))
             else:
                 context["user_interests"] = None
+            
             return render(request, "creating_project/index.html", context=context)
             
 
@@ -267,4 +278,67 @@ def index(request):
         return render(request, "errors/without_id_error.html")
 
 
- 
+def get_data(request):
+    time.sleep(0.1)
+    if "telegram_id" in request.session and "secret_key" in request.session:
+        telegram_id = request.session["telegram_id"]
+        secret_key = request.session["secret_key"]
+        
+
+        
+        if 'creating_project' not in request.session:
+            request.session["creating_project"] = {}
+        
+        if 'files' not in request.session["creating_project"]:
+            request.session["creating_project"]["files"] = []
+
+        if 'enable_price_upper' not in request.session["creating_project"]:
+            request.session["creating_project"]["enable_price_upper"] = "off"
+        
+        
+
+        if funcs.check_exist_user(telegram_id=telegram_id, secret_key=secret_key):
+
+            user_db = Users.objects.get(telegram_id=telegram_id)
+
+            if CreatingProject.objects.filter(creator=user_db).exists() == False:
+                creating_project_db = CreatingProject(creator=user_db)
+                creating_project_db.save()
+            else:
+                creating_project_db = CreatingProject.objects.filter(creator=user_db).values()
+            return JsonResponse(list(creating_project_db)[0], safe=False)
+    return JsonResponse("ERROR", safe=False)
+
+
+def final_check_list_view(request):
+    time.sleep(0.1)
+    if "telegram_id" in request.session and "secret_key" in request.session:
+        telegram_id = request.session["telegram_id"]
+        secret_key = request.session["secret_key"]
+        
+
+        
+        if 'creating_project' not in request.session:
+            request.session["creating_project"] = {}
+        
+        if 'files' not in request.session["creating_project"]:
+            request.session["creating_project"]["files"] = []
+
+        if 'enable_price_upper' not in request.session["creating_project"]:
+            request.session["creating_project"]["enable_price_upper"] = "off"
+        
+        
+
+        if funcs.check_exist_user(telegram_id=telegram_id, secret_key=secret_key):
+
+            user_db = Users.objects.get(telegram_id=telegram_id)
+
+            if CreatingProject.objects.filter(creator=user_db).exists() == False:
+                creating_project_db = CreatingProject(creator=user_db)
+                creating_project_db.save()
+            else:
+                creating_project_db = CreatingProject.objects.get(creator=user_db)
+            errors = funcs.final_check_list(db=creating_project_db)
+
+            return JsonResponse(json.dumps(errors), safe=False)
+    return JsonResponse("ERROR", safe=False)
